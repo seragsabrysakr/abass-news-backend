@@ -12,8 +12,31 @@ def create_app():
     # Enable CORS
     CORS(app)
     
-    # Initialize database
-    DatabaseService.initialize()
+    # Initialize database with retry logic
+    db_initialized = False
+    max_retries = 3
+    retry_count = 0
+    
+    while not db_initialized and retry_count < max_retries:
+        try:
+            print(f"🔄 Attempting database connection (attempt {retry_count + 1}/{max_retries})")
+            db_initialized = DatabaseService.initialize()
+            if db_initialized:
+                print("✅ Database initialized successfully")
+            else:
+                print(f"❌ Database initialization failed (attempt {retry_count + 1})")
+                retry_count += 1
+                import time
+                time.sleep(5)  # Wait 5 seconds before retry
+        except Exception as e:
+            print(f"❌ Database initialization error: {e}")
+            retry_count += 1
+            import time
+            time.sleep(5)  # Wait 5 seconds before retry
+    
+    if not db_initialized:
+        print("⚠️  Warning: Database connection failed. Application will start without database.")
+        print("📝 Please check your Railway PostgreSQL database configuration.")
     
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')
