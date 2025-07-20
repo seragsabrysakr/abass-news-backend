@@ -4,6 +4,7 @@ from app.services.database import DatabaseService
 from app.routes.auth import auth_bp
 from app.routes.articles import articles_bp
 from app.routes.issues import issues_bp
+from app.utils.response import success_response
 
 def create_app():
     """Application factory"""
@@ -57,33 +58,34 @@ def create_app():
         except Exception as e:
             db_status = f"error: {str(e)}"
         
-        return {
-            'status': 'healthy',
-            'message': 'Welcome to Abass News API',
-            'version': '1.0.0',
-            'database': db_status,
-            'endpoints': {
-                'auth': {
-                    'POST /auth/register': 'Register a new user',
-                    'POST /auth/login': 'Login user',
-                    'POST /auth/forgot-password': 'Send password reset token',
-                    'POST /auth/reset-password': 'Reset password using token',
-                    'DELETE /auth/delete': 'Delete user account (Authenticated)'
-                },
-                'articles': {
-                    'GET /articles': 'Get all published articles',
-                    'GET /articles/<id>': 'Get article by ID',
-                    'POST /articles': 'Create new article (Admin only)',
-                    'PUT /articles/<id>': 'Update article (Admin only)',
-                    'DELETE /articles/<id>': 'Delete article (Admin only)'
-                },
-                'issues': {
-                    'GET /issues': 'Get all issues (Admin only)',
-                    'GET /issues/user': 'Get user issues (Authenticated)',
-                    'POST /issues': 'Create new issue (Authenticated)',
-                    'PUT /issues/<id>/status': 'Update issue status (Admin only)'
+        return success_response(
+            data={
+                'version': '1.0.0',
+                'database': db_status,
+                'endpoints': {
+                    'auth': {
+                        'POST /auth/register': 'Register a new user',
+                        'POST /auth/login': 'Login user',
+                        'POST /auth/forgot-password': 'Send password reset token',
+                        'POST /auth/reset-password': 'Reset password using token',
+                        'DELETE /auth/delete': 'Delete user account (Authenticated)'
+                    },
+                    'articles': {
+                        'GET /articles': 'Get all published articles',
+                        'GET /articles/<id>': 'Get article by ID',
+                        'POST /articles': 'Create new article (Admin only)',
+                        'PUT /articles/<id>': 'Update article (Admin only)',
+                        'DELETE /articles/<id>': 'Delete article (Admin only)'
+                    },
+                    'issues': {
+                        'GET /issues': 'Get all issues (Admin only)',
+                        'GET /issues/user': 'Get user issues (Authenticated)',
+                        'POST /issues': 'Create new issue (Authenticated)',
+                        'PUT /issues/<id>/status': 'Update issue status (Admin only)'
+                    }
                 }
-            }
-        }
+            },
+            message="Welcome to Abass News API"
+        )
     
     return app 

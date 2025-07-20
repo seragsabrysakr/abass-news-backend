@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.services.article import ArticleService
 from app.middleware.auth import require_auth, require_admin
+from app.utils.response import success_response, error_response
 
 articles_bp = Blueprint('articles', __name__)
 
@@ -9,10 +10,13 @@ def get_articles():
     """Get all published articles"""
     try:
         articles = ArticleService.get_published_articles()
-        return jsonify({'articles': articles})
+        return success_response(
+            data={'articles': articles},
+            message="Articles retrieved successfully"
+        )
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return error_response("Internal server error", 500)
 
 @articles_bp.route('/<int:article_id>', methods=['GET'])
 def get_article(article_id):
@@ -21,12 +25,15 @@ def get_article(article_id):
         article = ArticleService.get_article_by_id(article_id)
         
         if not article:
-            return jsonify({'error': 'Article not found'}), 404
+            return error_response("Article not found", 404)
         
-        return jsonify(article)
+        return success_response(
+            data=article,
+            message="Article retrieved successfully"
+        )
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return error_response("Internal server error", 500)
 
 @articles_bp.route('/', methods=['POST'])
 @require_admin
@@ -42,7 +49,7 @@ def create_article():
         is_published = data.get('is_published', False)
         
         if not all([title, content]):
-            return jsonify({'error': 'Title and content are required'}), 400
+            return error_response("Title and content are required", 400)
         
         article = ArticleService.create_article(
             author_id=request.user['user_id'],
@@ -54,13 +61,14 @@ def create_article():
             is_published=is_published
         )
         
-        return jsonify({
-            'message': 'Article created successfully',
-            'article': article
-        }), 201
+        return success_response(
+            data={'article': article},
+            message="Article created successfully",
+            status_code=201
+        )
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return error_response("Internal server error", 500)
 
 @articles_bp.route('/<int:article_id>', methods=['PUT'])
 @require_admin
@@ -76,7 +84,7 @@ def update_article(article_id):
         is_published = data.get('is_published')
         
         if not any([title, content, summary, image_url, tags, is_published is not None]):
-            return jsonify({'error': 'At least one field must be provided'}), 400
+            return error_response("At least one field must be provided", 400)
         
         article = ArticleService.update_article(
             article_id=article_id,
@@ -89,15 +97,15 @@ def update_article(article_id):
         )
         
         if not article:
-            return jsonify({'error': 'Article not found'}), 404
+            return error_response("Article not found", 404)
         
-        return jsonify({
-            'message': 'Article updated successfully',
-            'article': article
-        })
+        return success_response(
+            data={'article': article},
+            message="Article updated successfully"
+        )
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return error_response("Internal server error", 500)
 
 @articles_bp.route('/<int:article_id>', methods=['DELETE'])
 @require_admin
@@ -107,9 +115,9 @@ def delete_article(article_id):
         success = ArticleService.delete_article(article_id)
         
         if not success:
-            return jsonify({'error': 'Article not found'}), 404
+            return error_response("Article not found", 404)
         
-        return jsonify({'message': 'Article deleted successfully'})
+        return success_response(message="Article deleted successfully")
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500 
+        return error_response("Internal server error", 500) 

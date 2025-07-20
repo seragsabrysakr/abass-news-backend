@@ -76,7 +76,9 @@ class AuthRepositoryImpl implements AuthRepository {
       _apiClient.setAuthToken(authModel.token);
 
       return Right(authModel.toEntity());
-    } catch (e) {
+    } catch (e, t) {
+      log(t.toString());
+      log(e.toString());
       return Left(ServerFailure(e.toString()));
     }
   }

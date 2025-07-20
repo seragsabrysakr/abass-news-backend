@@ -10,13 +10,13 @@ class EnvironmentConfig {
   static const Map<String, String> apiUrls = {
     development: 'http://localhost:8080',
     production:
-        'https://abbass.railway.app', // Replace with your actual Railway URL
+        'https://abass-news-backend-production.up.railway.app', // Replace with your actual Railway URL
   };
 
   // Get the current API URL
   static String get apiUrl {
     // return apiUrls[currentEnvironment] ?? apiUrls[development]!;
-    return 'https://abbass.railway.app';
+    return 'https://abass-news-backend-production.up.railway.app';
   }
 
   // Check if we're in production
