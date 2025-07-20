@@ -1,6 +1,6 @@
 import os
 import sys
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from app.models.user import Base as UserBase
@@ -57,10 +57,10 @@ class DatabaseService:
             # Create session factory
             cls._SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=cls._engine)
             
-            # Test connection
+            # Test connection with SQLAlchemy
             print("🔍 Testing database connection...")
             with cls._engine.connect() as conn:
-                result = conn.execute("SELECT 1 as test")
+                result = conn.execute(text("SELECT 1 as test"))
                 print(f"✅ Database connection test successful: {result.fetchone()}")
             
             # Create tables
@@ -111,6 +111,7 @@ class DatabaseService:
             
         except Exception as e:
             print(f"❌ Database table creation failed: {e}")
+            print(f"🔍 Error type: {type(e).__name__}")
             raise
     
     @classmethod

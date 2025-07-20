@@ -37,6 +37,7 @@ def create_app():
     if not db_initialized:
         print("⚠️  Warning: Database connection failed. Application will start without database.")
         print("📝 Please check your Railway PostgreSQL database configuration.")
+        print("📝 The app will start but database operations will fail.")
     
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')

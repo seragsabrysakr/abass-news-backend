@@ -49,7 +49,13 @@ class AuthService:
         try:
             print(f"🔍 Attempting to register user: {email}")
             
-            session = DatabaseService.get_session()
+            # Check if database is available
+            try:
+                session = DatabaseService.get_session()
+            except Exception as e:
+                print(f"❌ Database not available: {e}")
+                raise Exception("Database connection not available. Please check your Railway PostgreSQL configuration.")
+            
             try:
                 # Check if user already exists
                 existing_user = session.query(User).filter(
@@ -99,7 +105,13 @@ class AuthService:
         try:
             print(f"🔍 Attempting to login user: {email}")
             
-            session = DatabaseService.get_session()
+            # Check if database is available
+            try:
+                session = DatabaseService.get_session()
+            except Exception as e:
+                print(f"❌ Database not available: {e}")
+                raise Exception("Database connection not available. Please check your Railway PostgreSQL configuration.")
+            
             try:
                 # Get user
                 user = session.query(User).filter(User.email == email).first()
@@ -136,7 +148,13 @@ class AuthService:
         try:
             print(f"🔍 Creating password reset token for: {email}")
             
-            session = DatabaseService.get_session()
+            # Check if database is available
+            try:
+                session = DatabaseService.get_session()
+            except Exception as e:
+                print(f"❌ Database not available: {e}")
+                raise Exception("Database connection not available. Please check your Railway PostgreSQL configuration.")
+            
             try:
                 # Check if user exists
                 user = session.query(User).filter(User.email == email).first()
@@ -174,7 +192,13 @@ class AuthService:
         try:
             print(f"🔍 Attempting password reset with token")
             
-            session = DatabaseService.get_session()
+            # Check if database is available
+            try:
+                session = DatabaseService.get_session()
+            except Exception as e:
+                print(f"❌ Database not available: {e}")
+                return False
+            
             try:
                 # Find valid reset token
                 password_reset = session.query(PasswordReset).filter(
@@ -216,7 +240,13 @@ class AuthService:
         try:
             print(f"🔍 Attempting to delete user: {user_id}")
             
-            session = DatabaseService.get_session()
+            # Check if database is available
+            try:
+                session = DatabaseService.get_session()
+            except Exception as e:
+                print(f"❌ Database not available: {e}")
+                return False
+            
             try:
                 user = session.query(User).filter(User.id == user_id).first()
                 
