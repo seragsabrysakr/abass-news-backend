@@ -8,16 +8,26 @@ auth_bp = Blueprint('auth', __name__)
 def register():
     """Register a new user"""
     try:
+        print("🔍 /auth/register endpoint called")
+        
         data = request.get_json()
+        if not data:
+            print("❌ No JSON data received")
+            return jsonify({'error': 'No JSON data provided'}), 400
+        
         email = data.get('email')
         username = data.get('username')
         password = data.get('password')
         
+        print(f"🔍 Registration data: email={email}, username={username}")
+        
         if not all([email, username, password]):
+            print("❌ Missing required fields")
             return jsonify({'error': 'Email, username, and password are required'}), 400
         
         result = AuthService.register_user(email, username, password)
         
+        print("✅ Registration successful")
         return jsonify({
             'message': 'User registered successfully',
             'token': result['token'],
@@ -25,23 +35,36 @@ def register():
         }), 201
         
     except ValueError as e:
+        print(f"❌ Validation error: {e}")
         return jsonify({'error': str(e)}), 409
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"❌ Registration error: {e}")
+        print(f"🔍 Error type: {type(e).__name__}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
     """Login user"""
     try:
+        print("🔍 /auth/login endpoint called")
+        
         data = request.get_json()
+        if not data:
+            print("❌ No JSON data received")
+            return jsonify({'error': 'No JSON data provided'}), 400
+        
         email = data.get('email')
         password = data.get('password')
         
+        print(f"🔍 Login data: email={email}")
+        
         if not all([email, password]):
+            print("❌ Missing required fields")
             return jsonify({'error': 'Email and password are required'}), 400
         
         result = AuthService.login_user(email, password)
         
+        print("✅ Login successful")
         return jsonify({
             'message': 'Login successful',
             'token': result['token'],
@@ -49,67 +72,103 @@ def login():
         })
         
     except ValueError as e:
+        print(f"❌ Validation error: {e}")
         return jsonify({'error': str(e)}), 401
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"❌ Login error: {e}")
+        print(f"🔍 Error type: {type(e).__name__}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
     """Send password reset token"""
     try:
+        print("🔍 /auth/forgot-password endpoint called")
+        
         data = request.get_json()
+        if not data:
+            print("❌ No JSON data received")
+            return jsonify({'error': 'No JSON data provided'}), 400
+        
         email = data.get('email')
         
+        print(f"🔍 Forgot password data: email={email}")
+        
         if not email:
+            print("❌ Missing email")
             return jsonify({'error': 'Email is required'}), 400
         
         reset_token = AuthService.create_password_reset_token(email)
         
+        print("✅ Password reset token created")
         return jsonify({
             'message': 'Password reset token generated',
             'resetToken': reset_token
         })
         
     except ValueError as e:
+        print(f"❌ Validation error: {e}")
         return jsonify({'error': str(e)}), 404
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"❌ Forgot password error: {e}")
+        print(f"🔍 Error type: {type(e).__name__}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @auth_bp.route('/reset-password', methods=['POST'])
 def reset_password():
     """Reset password using token"""
     try:
+        print("🔍 /auth/reset-password endpoint called")
+        
         data = request.get_json()
+        if not data:
+            print("❌ No JSON data received")
+            return jsonify({'error': 'No JSON data provided'}), 400
+        
         token = data.get('token')
         new_password = data.get('newPassword')
         
+        print(f"🔍 Reset password data: token={'Set' if token else 'Not set'}")
+        
         if not all([token, new_password]):
+            print("❌ Missing required fields")
             return jsonify({'error': 'Token and newPassword are required'}), 400
         
         if len(new_password) < 6:
+            print("❌ Password too short")
             return jsonify({'error': 'Password must be at least 6 characters long'}), 400
         
         success = AuthService.reset_password(token, new_password)
         
         if not success:
+            print("❌ Password reset failed")
             return jsonify({'error': 'Invalid or expired token'}), 400
         
+        print("✅ Password reset successful")
         return jsonify({'message': 'Password reset successful'})
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"❌ Reset password error: {e}")
+        print(f"🔍 Error type: {type(e).__name__}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @auth_bp.route('/delete', methods=['DELETE'])
 @require_auth
 def delete_account():
     """Delete user account"""
     try:
+        print("🔍 /auth/delete endpoint called")
+        
         success = AuthService.delete_user(request.user['user_id'])
         
         if not success:
+            print("❌ User deletion failed")
             return jsonify({'error': 'User not found'}), 404
         
+        print("✅ Account deletion successful")
         return jsonify({'message': 'Account deleted successfully'})
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500 
+        print(f"❌ Delete account error: {e}")
+        print(f"🔍 Error type: {type(e).__name__}")
+        return jsonify({'error': 'Internal server error'}), 500 

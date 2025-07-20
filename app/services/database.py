@@ -1,4 +1,5 @@
 import os
+import sys
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -28,6 +29,13 @@ class DatabaseService:
             print(f"   Port: {db_port}")
             print(f"   Database: {db_name}")
             print(f"   User: {db_user}")
+            print(f"   Password: {'Set' if db_password else 'Not set'}")
+            
+            # Check if we have all required variables
+            if not all([db_host, db_port, db_name, db_user, db_password]):
+                print("❌ Missing required database environment variables")
+                print("🔍 Please ensure you have a PostgreSQL database in your Railway project")
+                return False
             
             # Create database URL
             database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
@@ -39,15 +47,21 @@ class DatabaseService:
                 database_url,
                 pool_pre_ping=True,
                 pool_recycle=300,
-                echo=False  # Set to True for SQL debugging
+                echo=False,  # Set to True for SQL debugging
+                connect_args={
+                    "connect_timeout": 10,
+                    "application_name": "abass_news_app"
+                }
             )
             
             # Create session factory
             cls._SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=cls._engine)
             
             # Test connection
+            print("🔍 Testing database connection...")
             with cls._engine.connect() as conn:
-                conn.execute("SELECT 1")
+                result = conn.execute("SELECT 1 as test")
+                print(f"✅ Database connection test successful: {result.fetchone()}")
             
             # Create tables
             cls._create_tables()
@@ -57,6 +71,7 @@ class DatabaseService:
             
         except Exception as e:
             print(f"❌ Database connection failed: {e}")
+            print(f"🔍 Error type: {type(e).__name__}")
             print(f"🔍 Environment variables:")
             print(f"   DB_HOST: {os.getenv('DB_HOST', 'Not set')}")
             print(f"   PGHOST: {os.getenv('PGHOST', 'Not set')}")
@@ -68,6 +83,16 @@ class DatabaseService:
             print(f"   PGUSER: {os.getenv('PGUSER', 'Not set')}")
             print(f"   DB_PASSWORD: {'Set' if os.getenv('DB_PASSWORD') else 'Not set'}")
             print(f"   PGPASSWORD: {'Set' if os.getenv('PGPASSWORD') else 'Not set'}")
+            
+            # Print all environment variables for debugging
+            print("🔍 All environment variables:")
+            for key, value in os.environ.items():
+                if 'PG' in key or 'DB' in key:
+                    if 'PASSWORD' in key:
+                        print(f"   {key}: {'Set' if value else 'Not set'}")
+                    else:
+                        print(f"   {key}: {value}")
+            
             return False
     
     @classmethod
