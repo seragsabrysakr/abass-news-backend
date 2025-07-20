@@ -1,5 +1,6 @@
 import os
 import sys
+from urllib.parse import urlparse
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -13,15 +14,60 @@ class DatabaseService:
     _SessionLocal = None
     
     @classmethod
+    def _parse_railway_url(cls, db_host):
+        """Parse Railway's PostgreSQL URL format"""
+        try:
+            if db_host.startswith('postgresql://'):
+                # Parse the full URL
+                parsed = urlparse(db_host)
+                host = parsed.hostname
+                port = parsed.port or 5432
+                username = parsed.username
+                password = parsed.password
+                database = parsed.path.lstrip('/')
+                
+                return {
+                    'host': host,
+                    'port': port,
+                    'user': username,
+                    'password': password,
+                    'database': database
+                }
+            else:
+                # Fallback to individual environment variables
+                return None
+        except Exception as e:
+            print(f"❌ Failed to parse Railway URL: {e}")
+            return None
+    
+    @classmethod
     def initialize(cls):
         """Initialize database connection"""
         try:
-            # Database configuration - Railway specific
-            db_host = os.getenv('DB_HOST', os.getenv('PGHOST', 'localhost'))
-            db_port = os.getenv('DB_PORT', os.getenv('PGPORT', '5432'))
-            db_name = os.getenv('DB_NAME', os.getenv('PGDATABASE', 'abass_news'))
-            db_user = os.getenv('DB_USER', os.getenv('PGUSER', 'postgres'))
-            db_password = os.getenv('DB_PASSWORD', os.getenv('PGPASSWORD', 'password'))
+            # Get the DB_HOST which might be a full PostgreSQL URL
+            db_host_env = os.getenv('DB_HOST', '')
+            
+            # Try to parse as Railway URL first
+            railway_config = cls._parse_railway_url(db_host_env)
+            
+            if railway_config:
+                # Use Railway URL configuration
+                db_host = railway_config['host']
+                db_port = railway_config['port']
+                db_name = railway_config['database']
+                db_user = railway_config['user']
+                db_password = railway_config['password']
+                
+                print(f"🔍 Using Railway PostgreSQL URL configuration")
+            else:
+                # Fallback to individual environment variables
+                db_host = os.getenv('DB_HOST', os.getenv('PGHOST', 'localhost'))
+                db_port = os.getenv('DB_PORT', os.getenv('PGPORT', '5432'))
+                db_name = os.getenv('DB_NAME', os.getenv('PGDATABASE', 'abass_news'))
+                db_user = os.getenv('DB_USER', os.getenv('PGUSER', 'postgres'))
+                db_password = os.getenv('DB_PASSWORD', os.getenv('PGPASSWORD', 'password'))
+                
+                print(f"🔍 Using individual environment variables")
             
             # Log connection details (without password)
             print(f"🔌 Database connection details:")
