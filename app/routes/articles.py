@@ -11,7 +11,7 @@ def get_articles():
     try:
         articles = ArticleService.get_published_articles()
         return success_response(
-            data={'articles': articles},
+            data=articles,
             message="Articles retrieved successfully"
         )
         
