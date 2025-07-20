@@ -18,4 +18,6 @@ WORKDIR /app
 COPY --from=build /app/bin/server /app/bin/server
 
 EXPOSE 8080
+ENV PORT=8080
+
 CMD ["/app/bin/server"] 
