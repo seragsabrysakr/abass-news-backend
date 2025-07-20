@@ -1,164 +1,130 @@
-# Abass News Backend
+# Abass News - Python Flask Backend
 
-A comprehensive backend API for a news application built with Dart Frog and Isar database.
+A modern news application backend built with Python Flask, featuring user authentication, article management, and issue tracking.
 
-## Features
+## 🚀 Features
 
-- **User Management**: Registration, login, and role-based access control
-- **Articles CRUD**: Full CRUD operations for news articles (Admin only)
-- **Issue Management**: Users can upload issues, admins can manage them
-- **Authentication**: JWT-based authentication with role-based authorization
-- **Database**: Isar database for fast local storage
+- **User Authentication**: Register, login, password reset, and account deletion
+- **Article Management**: Create, read, update, and delete articles (admin only)
+- **Issue Tracking**: Submit and track user issues
+- **JWT Authentication**: Secure token-based authentication
+- **PostgreSQL Database**: Robust data storage
+- **CORS Support**: Cross-origin resource sharing enabled
 
-## User Roles
+## 🛠️ Tech Stack
 
-### User
-- Read published articles
-- Upload issues
-- View their own issues
+- **Backend**: Python Flask
+- **Database**: PostgreSQL
+- **Authentication**: JWT tokens
+- **Password Hashing**: bcrypt
+- **Deployment**: Railway
 
-### Admin
-- All user permissions
-- Create, update, delete articles
-- Manage all issues
-- Approve/reject user issues
-
-## API Endpoints
+## 📋 API Endpoints
 
 ### Authentication
 - `POST /auth/register` - Register a new user
 - `POST /auth/login` - Login user
+- `POST /auth/forgot-password` - Send password reset token
+- `POST /auth/reset-password` - Reset password using token
+- `DELETE /auth/delete` - Delete user account (authenticated)
 
 ### Articles
 - `GET /articles` - Get all published articles
-- `GET /articles/{id}` - Get article by ID
-- `POST /articles` - Create new article (Admin only)
-- `PUT /articles/{id}` - Update article (Admin only)
-- `DELETE /articles/{id}` - Delete article (Admin only)
+- `GET /articles/<id>` - Get article by ID
+- `POST /articles` - Create new article (admin only)
+- `PUT /articles/<id>` - Update article (admin only)
+- `DELETE /articles/<id>` - Delete article (admin only)
 
 ### Issues
-- `GET /issues` - Get all issues (Admin only)
-- `GET /issues/user` - Get user issues (Authenticated)
-- `POST /issues` - Create new issue (Authenticated)
-- `PUT /issues/{id}/status` - Update issue status (Admin only)
+- `GET /issues` - Get all issues (admin only)
+- `GET /issues/user` - Get user issues (authenticated)
+- `POST /issues` - Create new issue (authenticated)
+- `PUT /issues/<id>/status` - Update issue status (admin only)
 
-## Setup
+## 🚀 Quick Start
 
-1. Install dependencies:
+### Local Development
+
+1. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Set environment variables:**
+   ```bash
+   export DB_HOST=localhost
+   export DB_PORT=5432
+   export DB_NAME=abass_news
+   export DB_USER=postgres
+   export DB_PASSWORD=password
+   export JWT_SECRET=your-secret-key
+   ```
+
+3. **Run the application:**
+   ```bash
+   python app.py
+   ```
+
+4. **Test the API:**
+   ```bash
+   curl http://localhost:8080/
+   ```
+
+### Railway Deployment
+
+1. **Push to GitHub**
+2. **Connect to Railway**
+3. **Set environment variables in Railway dashboard**
+4. **Deploy automatically**
+
+## 🔧 Environment Variables
+
+- `DB_HOST` - PostgreSQL host
+- `DB_PORT` - PostgreSQL port (default: 5432)
+- `DB_NAME` - Database name
+- `DB_USER` - Database username
+- `DB_PASSWORD` - Database password
+- `JWT_SECRET` - Secret key for JWT tokens
+- `PORT` - Server port (default: 8080)
+
+## 📱 Frontend
+
+The Flutter frontend is located in the `abass_news_app/` directory.
+
+## 🔒 Security
+
+- Passwords are hashed using bcrypt
+- JWT tokens for authentication
+- Input validation on all endpoints
+- SQL injection protection with parameterized queries
+
+## 📊 Database Schema
+
+The application automatically creates the following tables:
+- `users` - User accounts and authentication
+- `articles` - News articles and content
+- `issues` - User-submitted issues
+- `password_resets` - Password reset tokens
+
+## 🧪 Testing
+
+Test the API endpoints using curl or Postman:
+
 ```bash
-dart pub get
-```
+# Health check
+curl http://localhost:8080/
 
-2. Generate code (after installing dependencies):
-```bash
-dart run build_runner build
-```
-
-3. Run the development server:
-```bash
-dart_frog dev
-```
-
-The server will start at `http://localhost:8080`
-
-## API Usage Examples
-
-### Register a User
-```bash
+# Register user
 curl -X POST http://localhost:8080/auth/register \
   -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "username": "user123",
-    "password": "password123"
-  }'
-```
+  -d '{"email":"test@example.com","username":"testuser","password":"password123"}'
 
-### Login
-```bash
+# Login
 curl -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "password123"
-  }'
+  -d '{"email":"test@example.com","password":"password123"}'
 ```
 
-### Create Article (Admin)
-```bash
-curl -X POST http://localhost:8080/articles \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -d '{
-    "title": "Breaking News",
-    "content": "This is the article content...",
-    "summary": "Brief summary",
-    "isPublished": true
-  }'
-```
+## 📄 License
 
-### Upload Issue (User)
-```bash
-curl -X POST http://localhost:8080/issues \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -d '{
-    "title": "Bug Report",
-    "description": "Found a bug in the app...",
-    "imageUrl": "https://example.com/image.jpg"
-  }'
-```
-
-## Database Models
-
-### User
-- `id`: Unique identifier
-- `email`: User email
-- `username`: Display name
-- `passwordHash`: Hashed password
-- `role`: User role (user/admin)
-- `createdAt`: Account creation date
-- `updatedAt`: Last update date
-
-### Article
-- `id`: Unique identifier
-- `title`: Article title
-- `content`: Article content
-- `authorId`: Author user ID
-- `summary`: Article summary
-- `imageUrl`: Featured image URL
-- `tags`: Article tags
-- `isPublished`: Publication status
-- `createdAt`: Creation date
-- `updatedAt`: Last update date
-- `publishedAt`: Publication date
-
-### Issue
-- `id`: Unique identifier
-- `title`: Issue title
-- `description`: Issue description
-- `userId`: Reporter user ID
-- `imageUrl`: Issue image URL
-- `attachments`: Additional files
-- `status`: Issue status (pending/approved/rejected)
-- `adminNotes`: Admin comments
-- `createdAt`: Creation date
-- `updatedAt`: Last update date
-- `resolvedAt`: Resolution date
-
-## Security
-
-- Passwords are hashed using SHA-256
-- JWT tokens for authentication
-- Role-based access control
-- Input validation on all endpoints
-
-## Development
-
-To create an admin user, you can modify the registration endpoint or directly create a user with admin role in the database.
-
-For production deployment:
-1. Change the JWT secret key in `lib/services/auth_service.dart`
-2. Configure proper environment variables
-3. Set up proper logging and monitoring
-4. Implement rate limiting and additional security measures
+This project is licensed under the MIT License.
