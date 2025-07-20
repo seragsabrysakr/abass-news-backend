@@ -6,15 +6,15 @@ echo "🚀 Building Abass News Backend..."
 echo "📦 Installing dependencies..."
 dart pub get
 
-# Compile the application
-echo "🔨 Compiling application..."
-dart compile exe bin/server.dart -o bin/server
+# Compile the test server
+echo "🔨 Compiling test server..."
+dart compile exe test_server.dart -o test_server
 
 # Make executable
-chmod +x bin/server
+chmod +x test_server
 
 echo "✅ Build complete!"
-echo "🚀 Starting server..."
+echo "🚀 Starting test server..."
 
 # Set default port if not provided
 export PORT=${PORT:-8080}
@@ -26,6 +26,6 @@ echo "   DB_HOST: ${DB_HOST:-'not set'}"
 echo "   DB_PORT: ${DB_PORT:-'not set'}"
 echo "   DB_NAME: ${DB_NAME:-'not set'}"
 
-# Start the server
-echo "🚀 Executing: ./bin/server"
-./bin/server 
+# Start the test server
+echo "🚀 Executing: ./test_server"
+./test_server 
