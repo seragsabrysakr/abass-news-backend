@@ -20,6 +20,12 @@ echo "🚀 Starting server..."
 export PORT=${PORT:-8080}
 
 echo "🌐 Server will start on port $PORT"
+echo "🔍 Environment variables:"
+echo "   PORT: $PORT"
+echo "   DB_HOST: ${DB_HOST:-'not set'}"
+echo "   DB_PORT: ${DB_PORT:-'not set'}"
+echo "   DB_NAME: ${DB_NAME:-'not set'}"
 
 # Start the server
+echo "🚀 Executing: ./bin/server"
 ./bin/server 

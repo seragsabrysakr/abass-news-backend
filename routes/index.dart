@@ -3,15 +3,17 @@ import 'package:dart_frog/dart_frog.dart';
 
 Future<Response> onRequest(RequestContext context) async {
   try {
-    // Try to initialize database
-    await DatabaseService.initialize();
+    // Try to initialize database (non-blocking)
+    DatabaseService.initialize().catchError((e) {
+      print('⚠️  Database connection failed in route: $e');
+    });
 
     return Response.json(
       body: {
         'status': 'healthy',
         'message': 'Welcome to Abass News API',
         'version': '1.0.0',
-        'database': 'connected',
+        'database': 'connecting',
         'endpoints': {
           'auth': {
             'POST /auth/register': 'Register a new user',
@@ -34,7 +36,7 @@ Future<Response> onRequest(RequestContext context) async {
       },
     );
   } catch (e) {
-    // Return a response even if database fails
+    // Return a response even if something fails
     return Response.json(
       body: {
         'status': 'degraded',
