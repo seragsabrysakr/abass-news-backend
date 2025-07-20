@@ -29,3 +29,5 @@ dev_dependencies:
   json_serializable: ^6.7.1
   freezed: ^2.4.6
   analyzer: ^5.13.0
+ 
+  dart_frog_cli:
