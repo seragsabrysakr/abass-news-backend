@@ -9,24 +9,35 @@ class DatabaseService {
   static Future<void> initialize() async {
     if (_initialized) return;
 
-    // Get database connection details from environment variables
-    final host = Platform.environment['DB_HOST'] ?? 'localhost';
-    final port = int.parse(Platform.environment['DB_PORT'] ?? '5432');
-    final database = Platform.environment['DB_NAME'] ?? 'abass_news';
-    final username = Platform.environment['DB_USER'] ?? 'postgres';
-    final password = Platform.environment['DB_PASSWORD'] ?? 'password';
+    try {
+      // Get database connection details from environment variables
+      final host = Platform.environment['DB_HOST'] ?? 'localhost';
+      final port = int.parse(Platform.environment['DB_PORT'] ?? '5432');
+      final database = Platform.environment['DB_NAME'] ?? 'abass_news';
+      final username = Platform.environment['DB_USER'] ?? 'postgres';
+      final password = Platform.environment['DB_PASSWORD'] ?? 'password';
 
-    _connection = PostgreSQLConnection(
-      host,
-      port,
-      database,
-      username: username,
-      password: password,
-    );
+      print('🔌 Connecting to database: $host:$port/$database');
 
-    await _connection!.open();
-    await _createTables();
-    _initialized = true;
+      _connection = PostgreSQLConnection(
+        host,
+        port,
+        database,
+        username: username,
+        password: password,
+      );
+
+      await _connection!.open();
+      print('✅ Database connected successfully');
+
+      await _createTables();
+      print('📋 Database tables created/verified');
+
+      _initialized = true;
+    } catch (e) {
+      print('❌ Database connection failed: $e');
+      rethrow;
+    }
   }
 
   static PostgreSQLConnection get instance {
